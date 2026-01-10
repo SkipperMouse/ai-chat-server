@@ -1,8 +1,8 @@
 package com.sokolov.ai.repository
 
-import com.sokolov.ai.infrastructure.mapper.toChatEntry
-import com.sokolov.ai.infrastructure.mapper.toMessage
 import com.sokolov.ai.domain.chat.Chat
+import com.sokolov.ai.infrastructure.mapper.toChatMessage
+import com.sokolov.ai.infrastructure.mapper.toMessage
 import org.springframework.ai.chat.memory.ChatMemory
 import org.springframework.ai.chat.memory.ChatMemoryRepository
 import org.springframework.ai.chat.messages.Message
@@ -21,7 +21,7 @@ interface ChatRepository : JpaRepository<Chat, Long>, ChatMemoryRepository {
             return emptyList()
         }
         return getChat(conversationId)
-            .history
+            .messageHistory
             .map { it.toMessage() }
     }
 
@@ -30,8 +30,8 @@ interface ChatRepository : JpaRepository<Chat, Long>, ChatMemoryRepository {
             return
         }
         val chat = getChat(conversationId)
-        chat.history
-            .addAll(messages.map { it.toChatEntry(conversationId.toLong()) })
+        chat.messageHistory
+            .addAll(messages.map { it.toChatMessage(conversationId.toLong()) })
         save(chat)
     }
 

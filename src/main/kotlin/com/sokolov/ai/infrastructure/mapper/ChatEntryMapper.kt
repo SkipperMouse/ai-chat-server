@@ -1,18 +1,19 @@
 package com.sokolov.ai.infrastructure.mapper
 
-import com.sokolov.ai.domain.chat.ChatEntry
+import com.sokolov.ai.domain.chat.ChatMessage
 import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.MessageType
 import org.springframework.ai.chat.messages.SystemMessage
 import org.springframework.ai.chat.messages.UserMessage
 
-fun Message.toChatEntry(chatId: Long): ChatEntry = ChatEntry(
+fun Message.toChatMessage(chatId: Long): ChatMessage = ChatMessage(
     content = text,
-    role = messageType
+    role = messageType,
+    chatId = chatId
 )
 
-fun ChatEntry.toMessage(): Message =
+fun ChatMessage.toMessage(): Message =
     when (role) {
         MessageType.USER -> UserMessage(content)
         MessageType.ASSISTANT -> AssistantMessage(content)

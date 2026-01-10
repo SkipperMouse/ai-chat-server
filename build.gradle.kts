@@ -30,7 +30,9 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 
+	implementation("org.flywaydb:flyway-core:11.20.1")
 	runtimeOnly("org.postgresql:postgresql:42.7.8")
+	runtimeOnly("org.flywaydb:flyway-database-postgresql:11.20.1")
 
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")

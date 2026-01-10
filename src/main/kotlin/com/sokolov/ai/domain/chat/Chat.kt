@@ -6,8 +6,8 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.OneToMany
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.OneToMany
 import org.hibernate.annotations.CreationTimestamp
 import java.time.Instant
 
@@ -19,19 +19,17 @@ class Chat(
     val title: String,
     @CreationTimestamp
     var createdAt: Instant? = null,
+    @OrderBy("createdAt ASC")
     @OneToMany(
         fetch = FetchType.EAGER,
         orphanRemoval = true,
         cascade = [CascadeType.ALL]
     )
     @JoinColumn(name = "chat_id")
-    val history: MutableList<ChatEntry> = mutableListOf()
+    val messageHistory: MutableList<ChatMessage> = mutableListOf()
 ) {
-    fun addEntry(chatEntry: ChatEntry) {
-        history.add(chatEntry)
-    }
 
-    fun addAllEntries(chatEntries: List<ChatEntry>) {
-        history.addAll(chatEntries)
+    fun addAllMessages(chatEntries: List<ChatMessage>) {
+        messageHistory.addAll(chatEntries)
     }
 }

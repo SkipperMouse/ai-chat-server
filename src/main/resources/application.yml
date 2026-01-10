@@ -1,0 +1,44 @@
+server:
+  port: 8080
+
+logging:
+  level:
+    com.sokolov.ai: DEBUG
+    org.springframework.ai.chat.client.advisor: DEBUG
+
+spring:
+  application:
+    name: ai-service
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        model: qwen3-vl:2b
+        options:
+          truncate: true
+      embedding:
+        model: mxbai-embed-large
+        options:
+          truncate: true
+    vectorstore:
+      pgvector:
+        index-type: hnsw
+        distance-type: COSINE_DISTANCE
+        dimensions: 1024
+        max-document-batch-size: 10000
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ai_assistant
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+ai:
+  ingest:
+    allowed-extensions:
+      - pdf
+      - md
+      - txt
+      - html
+      - docx
+      - java
+      - kt

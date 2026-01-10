@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.1-pg18-trixie
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-ai_assistant}
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./volumes/postgres/data:/var/lib/postgresql
+    healthcheck:
+      test: "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+
+####     only for linux. On windows and mac os use ollama desktop app     ####
+#  ollama:
+#    image: ollama/ollama
+#    container_name: ollama
+#    ports:
+#      - "11434:11434"
+#    volumes:
+#      - ./volumes/ollama:/root/.ollama
+#    entrypoint: >
+#      /bin/sh -c "
+#        ollama serve &
+#        sleep 2 &&
+#        ollama pull deepseek-r1:1.5b &&
+#        ollama pull nomic-embed-text-v2-moe &&
+#        wait
+#      "
+#    restart: unless-stopped

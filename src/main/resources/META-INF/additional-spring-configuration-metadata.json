@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "ai.ingest.allowed-extensions",
+      "type": "java.lang.String",
+      "description": "allowed extensions for ingest"
+    }
+  ]
+}
