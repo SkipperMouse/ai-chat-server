@@ -1,5 +1,6 @@
 package com.sokolov.ai.infrastructure.mapper
 
+import com.sokolov.ai.domain.chat.Chat
 import com.sokolov.ai.domain.chat.ChatMessage
 import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.Message
@@ -7,10 +8,10 @@ import org.springframework.ai.chat.messages.MessageType
 import org.springframework.ai.chat.messages.SystemMessage
 import org.springframework.ai.chat.messages.UserMessage
 
-fun Message.toChatMessage(chatId: Long): ChatMessage = ChatMessage(
+fun Message.toChatMessage(chat: Chat): ChatMessage = ChatMessage(
     content = text,
     role = messageType,
-    chatId = chatId
+    chat = chat,
 )
 
 fun ChatMessage.toMessage(): Message =

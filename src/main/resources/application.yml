@@ -5,6 +5,7 @@ logging:
   level:
     com.sokolov.ai: DEBUG
     org.springframework.ai.chat.client.advisor: DEBUG
+    org.hibernate.SQL: DEBUG
 
 spring:
   application:
@@ -31,6 +32,13 @@ spring:
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
+  jpa:
+    show-sql: true
 
 ai:
   ingest:

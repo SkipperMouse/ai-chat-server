@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script th:src="@{/js/chat.js}" src="/js/chat.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <title>Bender GPT</title>
+
+    <link rel="stylesheet" th:href="@{/css/chat.css}" href="/css/chat.css" />
+</head>
+
+<body>
+
+<div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand__logo">
+                <img th:src="@{/image/bender.png}" src="/image/bender.png" alt="Bender GPT Logo" />
+            </div>
+            <div class="brand__text">
+                <div class="brand__name">Bender GPT</div>
+                <div class="brand__sub">bite my shiny UI</div>
+            </div>
+        </div>
+
+        <form class="new-chat" th:action="@{/chats}" method="post" autocomplete="off">
+            <label class="new-chat__label" for="title">New chat</label>
+            <div class="new-chat__row">
+                <input
+                        id="title"
+                        name="title"
+                        type="text"
+                        class="input"
+                        placeholder="Chat title…"
+                        required
+                />
+                <button class="btn btn--primary" type="submit" title="Create chat">+</button>
+            </div>
+            <div class="hint">Enter тоже работает. Люди любят нажимать Enter.</div>
+        </form>
+
+        <div class="chat-list">
+            <div class="chat-list__title">Chats</div>
+
+            <div th:if="${#lists.isEmpty(chats)}" class="empty">
+                No chats yet. Create one on the left. Revolutionary concept.
+            </div>
+
+            <ul th:if="${!#lists.isEmpty(chats)}">
+                <li th:each="c : ${chats}">
+                    <a class="chat-item"
+                       th:href="@{/chats/{id}(id=${c.id})}"
+                       th:classappend="${chat != null and chat.id == c.id} ? ' chat-item--active' : ''">
+                        <div class="chat-item__title" th:text="${c.title}">Chat title</div>
+                        <div class="chat-item__meta">
+                            <span th:text="${c.messageHistory != null ? c.messageHistory.size() : 0}">0</span>
+                            <span>msgs</span>
+                        </div>
+                    </a>
+
+                    <!-- Delete (needs HiddenHttpMethodFilter enabled for _method=delete) -->
+                    <form class="delete-chat"
+                          th:action="@{/chats/{id}(id=${c.id})}"
+                          method="post"
+                          th:if="${c.id != null}">
+                        <input type="hidden" name="_method" value="delete" />
+                        <button class="icon-btn" type="submit" title="Delete chat" aria-label="Delete chat">🗑</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar__footer">
+            <div class="toggle">
+                <input id="streaming" type="checkbox" checked/>
+                <label for="streaming">Streaming (SSE)</label>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar__title" th:text="${chat != null ? chat.title : 'Select a chat'}">Select a chat</div>
+            <div class="topbar__pill">Dark • Purple • Modern • Slightly judgemental</div>
+        </header>
+
+        <!-- Messages -->
+        <section class="messages" id="messages">
+            <div th:if="${chat == null}" class="empty-center">
+                <div class="empty-center__box">
+                    <div class="empty-center__title">Bender GPT</div>
+                    <div class="empty-center__text">
+                        Choose a chat on the left or create a new one.
+                        Then type something questionable on the right.
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${chat != null}">
+                <div th:if="${#lists.isEmpty(chat.messageHistory)}" class="empty-center">
+                    <div class="empty-center__box">
+                        <div class="empty-center__title">No messages yet</div>
+                        <div class="empty-center__text">Say something. Preferably not illegal.</div>
+                    </div>
+                </div>
+
+                <div th:if="${!#lists.isEmpty(chat.messageHistory)}" class="message-list">
+                    <div class="msg"
+                         th:each="m : ${chat.messageHistory}"
+                         th:classappend="${m.role != null && m.role.name() == 'USER'} ? ' msg--user' : ' msg--assistant'">
+
+                        <div class="msg__avatar">
+                            <img
+                                    th:src="${m.role != null && m.role.name() == 'USER'} ? @{/image/user.png} : @{/image/assistant.png}"
+                                    src="/image/assistant.png"
+                                    alt="avatar"
+                            />
+                        </div>
+
+                        <div class="msg__bubble">
+                            <div class="msg__role"
+                                 th:text="${m.role != null ? m.role.name() : 'UNKNOWN'}">ASSISTANT</div>
+
+                            <!-- content; th:text escapes HTML (safe) -->
+                            <div class="msg__content" th:text="${m.content}">Hello</div>
+
+                            <div class="msg__time"
+                                 th:if="${m.createdAt != null}"
+                                 th:text="${#temporals.format(m.createdAt, 'yyyy-MM-dd HH:mm:ss')}">
+                                2026-01-13 20:00:00
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Composer -->
+        <footer class="composer" th:if="${chat != null}">
+            <!-- Non-streaming submit: POST /chats/{chatId}/messages -->
+            <form class="composer__form"
+                  id="composerForm"
+                  th:action="@{/chats/{chatId}/messages(chatId=${chat.id})}"
+                  th:attr="data-chat-id=${chat.id}"
+                  method="post"
+                  autocomplete="off">
+        <textarea
+                class="textarea"
+                name="prompt"
+                id="prompt"
+                rows="1"
+                placeholder="Message Bender GPT…"
+                required
+        ></textarea>
+
+                <button class="btn btn--primary" type="submit">Send</button>
+            </form>
+
+            <div class="composer__note">
+                Enter отправляет, Shift+Enter перенос строки.
+            </div>
+        </footer>
+    </main>
+</div>
+</body>
+</html>

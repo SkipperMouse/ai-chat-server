@@ -10,9 +10,9 @@ import org.springframework.ai.chat.messages.Message
 open class PostgresChatMemory(val chatRepository: ChatRepository, val maxMessages: Int) : ChatMemory {
 
     override fun add(conversationId: String, messages: List<Message>) {
-        val chatEntries = messages.map { it.toChatMessage(conversationId.toLong()) }
         val chat = chatRepository.findById(conversationId.toLong())
             .orElseThrow { NotFoundException(conversationId.toLong()) }
+        val chatEntries = messages.map { it.toChatMessage(chat) }
         chat.addAllMessages(chatEntries)
         chatRepository.save(chat)
     }

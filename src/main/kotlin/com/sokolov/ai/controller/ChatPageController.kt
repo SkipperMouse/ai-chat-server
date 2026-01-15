@@ -38,7 +38,7 @@ class ChatPageController(val chatService: ChatService) {
     @DeleteMapping("/{chatId}")
     fun deleteChat(@PathVariable chatId: Long): String {
         chatService.deleteChat(chatId)
-        return "redirect:/"
+        return "redirect:/chats"
     }
 
     @PostMapping("/{chatId}/messages")

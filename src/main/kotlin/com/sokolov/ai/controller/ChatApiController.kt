@@ -13,7 +13,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 @RequestMapping("/api")
 class ChatApiController(val chatService: ChatService) {
 
-    @GetMapping("/{chatId}/messages/stream", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+    @GetMapping("/chats/{chatId}/messages/stream", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
     fun getChatStream(@PathVariable chatId: Long, @RequestParam("userPrompt") prompt: String): SseEmitter {
         return chatService.proceedInteractionWithStreaming(chatId, prompt)
     }

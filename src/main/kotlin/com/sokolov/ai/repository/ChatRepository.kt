@@ -31,7 +31,7 @@ interface ChatRepository : JpaRepository<Chat, Long>, ChatMemoryRepository {
         }
         val chat = getChat(conversationId)
         chat.messageHistory
-            .addAll(messages.map { it.toChatMessage(conversationId.toLong()) })
+            .addAll(messages.map { it.toChatMessage(chat) })
         save(chat)
     }
 
