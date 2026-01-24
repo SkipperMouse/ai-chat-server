@@ -3,6 +3,7 @@ package com.sokolov.ai.service
 import com.sokolov.ai.config.IngestProperties
 import com.sokolov.ai.domain.document.ProcessedDocument
 import com.sokolov.ai.repository.DocumentRepository
+import com.sokolov.ai.utils.CHUNK_SIZE
 import com.sokolov.ai.utils.UNKNOWN
 import com.sokolov.ai.utils.contentHash
 import org.slf4j.LoggerFactory
@@ -39,11 +40,12 @@ class DocumentLoaderService(
             .forEach { (resource, hash, type) -> loadDocument(resource, hash, type) }
     }
 
+//    TODO tune chunk spliterator
     private fun loadDocument(resource: Resource, hash: String, documentType: String) {
         log.debug("loadDocument: name=${resource.filename}")
         val documents = TextReader(resource).get()
         val textSplitter = TokenTextSplitter.builder()
-            .withChunkSize(250)
+            .withChunkSize(CHUNK_SIZE)
             .build()
         val chunks = textSplitter.apply(documents)
         vectorStore.accept(chunks)
