@@ -28,10 +28,10 @@ class ExpansionQueryAdvisor private constructor(
         val enrichedPrompt = chatClient.prompt()
             .user(template.render(mapOf(Pair(QUESTION, originalPrompt))))
             .call()
-            .content()
+            .content() ?: ""
         val ratio = enrichedPrompt
-            ?.takeIf {it.isNotEmpty() }
-            ?.let { originalPrompt.length.toDouble() / it.length }
+            .takeIf { it.isNotEmpty() }
+            ?.let { originalPrompt.length.toDouble() / it.length } ?: 1
         return chatClientRequest.mutate()
             .context(ORIGINAL_PROMPT, originalPrompt)
             .context(ENRICHED_PROMPT, enrichedPrompt)
@@ -45,7 +45,7 @@ class ExpansionQueryAdvisor private constructor(
         chatClientResponse: ChatClientResponse,
         advisorChain: AdvisorChain
     ): ChatClientResponse {
-        TODO("Not yet implemented")
+        return chatClientResponse
     }
 
     override fun getOrder(): Int {

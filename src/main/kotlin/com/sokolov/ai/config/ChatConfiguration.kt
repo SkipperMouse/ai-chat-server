@@ -6,7 +6,7 @@ import com.sokolov.ai.infrastructure.advisors.RagAdvisor
 import com.sokolov.ai.repository.ChatRepository
 import com.sokolov.ai.utils.FINAL_REQUEST_LOG_TEMPLATE
 import com.sokolov.ai.utils.FINAL_RESPONSE_LOG_HEADER
-import com.sokolov.ai.utils.PROMPT_TEMPLATE
+import com.sokolov.ai.utils.FINAL_PROMPT_TEMPLATE
 import com.sokolov.ai.utils.SYSTEM_PROMPT
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor
@@ -77,7 +77,7 @@ class ChatConfiguration(
                     .similarityThreshold(ragAdvisorProperties.similarityThreshold)
                     .build()
             )
-            .promptTemplate(PromptTemplate(PROMPT_TEMPLATE))
+            .promptTemplate(PromptTemplate(FINAL_PROMPT_TEMPLATE))
 
     @Bean
     fun postgresChatMemory(): PostgresChatMemory = PostgresChatMemory(

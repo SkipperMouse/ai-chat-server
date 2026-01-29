@@ -3,6 +3,7 @@ package com.sokolov.ai.infrastructure.advisors
 import com.sokolov.ai.infrastructure.ranker.OkapiBm25RerankEngine
 import com.sokolov.ai.utils.CONTEXT
 import com.sokolov.ai.utils.EMPTY_CONTEXT
+import com.sokolov.ai.utils.EMPTY_PROMPT
 import com.sokolov.ai.utils.ENRICHED_PROMPT
 import com.sokolov.ai.utils.QUESTION
 import org.springframework.ai.chat.client.ChatClientRequest
@@ -28,7 +29,7 @@ class RagAdvisor private constructor(
         val originalQuestion = chatClientRequest.prompt.userMessage.text
         val queryToRag = (chatClientRequest.context[ENRICHED_PROMPT] as? String?) ?: originalQuestion
 
-        var retrievedDocs = vectorStore.similaritySearch(
+        val retrievedDocs = vectorStore.similaritySearch(
             SearchRequest.from(searchRequest)
                 .query(queryToRag)
                 .topK(searchRequest.topK * 2) // increase number of documents from RAG for better ranking
@@ -46,9 +47,9 @@ class RagAdvisor private constructor(
     }
 
     override fun after(
-        chatClientResponse: ChatClientResponse?,
-        advisorChain: AdvisorChain?
-    ): ChatClientResponse? {
+        chatClientResponse: ChatClientResponse,
+        advisorChain: AdvisorChain
+    ): ChatClientResponse {
         return chatClientResponse
     }
 
@@ -71,7 +72,7 @@ class RagAdvisor private constructor(
 
     companion object {
         fun builder(vectorStore: VectorStore): Builder = Builder(vectorStore)
-        private val EMPTY_PROMPT_TEMPLATE = PromptTemplate.builder().build()
+        private val EMPTY_PROMPT_TEMPLATE = PromptTemplate.builder().template(EMPTY_PROMPT).build()
 
         private fun getSearchRequest(): SearchRequest = SearchRequest.builder()
             .topK(4)
