@@ -19,7 +19,6 @@ class OkapiBm25RerankEngine {
      * @param limit Maximum number of documents to return
      * @return List of top-ranked documents sorted by relevance score (highest first)
      */
-//    todo work wth coroutines
     fun rerank(corpus: List<Document>, query: String, limit: Int): List<Document> {
         if (corpus.isEmpty()) return emptyList()
 

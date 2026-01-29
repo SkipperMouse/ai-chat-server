@@ -4,6 +4,8 @@ import com.sokolov.ai.infrastructure.PostgresChatMemory
 import com.sokolov.ai.infrastructure.advisors.ExpansionQueryAdvisor
 import com.sokolov.ai.infrastructure.advisors.RagAdvisor
 import com.sokolov.ai.repository.ChatRepository
+import com.sokolov.ai.utils.FINAL_REQUEST_LOG_TEMPLATE
+import com.sokolov.ai.utils.FINAL_RESPONSE_LOG_HEADER
 import com.sokolov.ai.utils.PROMPT_TEMPLATE
 import com.sokolov.ai.utils.SYSTEM_PROMPT
 import org.springframework.ai.chat.client.ChatClient
@@ -46,21 +48,23 @@ class ChatConfiguration(
     @Bean
     fun getOrderedAdvisors(
         historyAdviserBuilder: MessageChatMemoryAdvisor.Builder,
-        ragAdvisorBuilder: RagAdvisor.Builder
+        ragAdvisorBuilder: RagAdvisor.Builder,
+        finalLogAdviser: SimpleLoggerAdvisor.Builder
     ): List<Advisor> {
         var count = 0
         return listOf(
             ExpansionQueryAdvisor.builder(chatModel).order(++count).build(),
-            SimpleLoggerAdvisor.builder().order(++count).build(),
+            getLogAdviser(++count, "expansion query"),
             historyAdviserBuilder.order(++count).build(),
-            SimpleLoggerAdvisor.builder().order(++count).build(),
+            getLogAdviser(++count, "history"),
             ragAdvisorBuilder.order(++count).build(),
-            SimpleLoggerAdvisor.builder().order(++count).build()
+            finalLogAdviser.order(++count).build()
         )
     }
 
+
     @Bean
-    fun getHistoryAdviserBuilder(chatMemory: PostgresChatMemory): MessageChatMemoryAdvisor.Builder =
+    fun historyAdviserBuilder(chatMemory: PostgresChatMemory): MessageChatMemoryAdvisor.Builder =
         MessageChatMemoryAdvisor.builder(chatMemory)
 
 
@@ -80,4 +84,27 @@ class ChatConfiguration(
         chatRepository = chatRepository,
         maxMessages = chatProperties.maxHistorySize
     )
+
+    fun getLogAdviser(order: Int, step: String): SimpleLoggerAdvisor = SimpleLoggerAdvisor.builder()
+        .order(order)
+        .requestToString { req -> "user=${req.prompt.userMessage.text}" }
+        .responseToString { res -> "${step}=${res.result.output.text}" }
+        .build()
+
+    @Bean
+    fun finalLogAdviser(): SimpleLoggerAdvisor.Builder = SimpleLoggerAdvisor.builder()
+        .requestToString { req ->
+            String.format(FINAL_REQUEST_LOG_TEMPLATE, req.prompt.userMessage.text)
+        }
+        .responseToString { res ->
+            val output = res.result.output.text
+            val metadata = res.result.metadata
+            val finishReason = metadata.finishReason
+            val builder = StringBuilder()
+                .append(String.format(FINAL_RESPONSE_LOG_HEADER, output, finishReason))
+            for (prop in metadata.entrySet()) {
+                builder.appendLine("${prop.key}=${prop.value}")
+            }
+            builder.toString()
+        }
 }

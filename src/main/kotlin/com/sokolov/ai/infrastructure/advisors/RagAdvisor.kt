@@ -1,5 +1,6 @@
 package com.sokolov.ai.infrastructure.advisors
 
+import com.sokolov.ai.infrastructure.ranker.OkapiBm25RerankEngine
 import com.sokolov.ai.utils.CONTEXT
 import com.sokolov.ai.utils.EMPTY_CONTEXT
 import com.sokolov.ai.utils.ENRICHED_PROMPT
@@ -27,15 +28,17 @@ class RagAdvisor private constructor(
         val originalQuestion = chatClientRequest.prompt.userMessage.text
         val queryToRag = (chatClientRequest.context[ENRICHED_PROMPT] as? String?) ?: originalQuestion
 
-        val documents = vectorStore.similaritySearch(
+        var retrievedDocs = vectorStore.similaritySearch(
             SearchRequest.from(searchRequest)
                 .query(queryToRag)
                 .topK(searchRequest.topK * 2) // increase number of documents from RAG for better ranking
                 .build()
         )
-        if (documents.isEmpty()) return updateRequest(chatClientRequest, queryToRag, EMPTY_CONTEXT)
+        if (retrievedDocs.isEmpty()) return updateRequest(chatClientRequest, queryToRag, EMPTY_CONTEXT)
+        val reranker = OkapiBm25RerankEngine()
+        val rerankedDocs = reranker.rerank(retrievedDocs, queryToRag, searchRequest.topK)
 
-        val llmContext = documents
+        val llmContext = rerankedDocs
             .mapNotNull { it.text }
             .joinToString(System.lineSeparator())
 
