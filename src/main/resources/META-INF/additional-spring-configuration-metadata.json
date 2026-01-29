@@ -1,9 +1,60 @@
 {
+  "groups": [
+    {
+      "name": "ai.chat",
+      "description": "AI chat configuration"
+    },
+    {
+      "name": "ai.rag-advisor",
+      "description": "RAG advisor configuration"
+    }
+  ],
   "properties": [
     {
       "name": "ai.ingest.allowed-extensions",
-      "type": "java.lang.String",
-      "description": "allowed extensions for ingest"
+      "type": "java.util.List<java.lang.String>",
+      "description": "List of file extensions that are allowed to be ingested into the AI system. Can be provided as a YAML list or as a comma-separated string (for example: pdf, txt, md)."
+    },
+
+
+
+    {
+      "name": "ai.chat.max-history-size",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of previous chat messages to keep and send to the AI model as conversation history."
+    },
+    {
+      "name": "ai.chat.temperature",
+      "type": "java.lang.Double",
+      "description": "Controls randomness of the AI responses. Lower values make replies more deterministic, higher values make them more creative."
+    },
+    {
+      "name": "ai.chat.top-k",
+      "type": "java.lang.Integer",
+      "description": "Number of most relevant documents to retrieve and attach to the prompt when using AI retrieval (RAG)."
+    },
+    {
+      "name": "ai.chat.top-p",
+      "type": "java.lang.Double",
+      "description": "Top-p (nucleus) sampling parameter. Limits token selection to the smallest set whose cumulative probability exceeds this value."
+    },
+
+
+
+    {
+      "name": "ai.chat.repeat-penalty",
+      "type": "java.lang.Double",
+      "description": "Penalty applied to repeated tokens to reduce repetitive or looping responses from the AI."
+    },
+    {
+      "name": "ai.rag-advisor.top-k",
+      "type": "java.lang.Integer",
+      "description": "Number of most relevant documents to retrieve from the vector store and attach to the SearchRequest used by the RAG advisor."
+    },
+    {
+      "name": "ai.rag-advisor.similarity-threshold",
+      "type": "java.lang.Double",
+      "description": "Minimum similarity score required for a document to be included in the SearchRequest. Filters out low-relevance documents before they are attached to the RAG prompt."
     }
   ]
 }
