@@ -43,7 +43,7 @@ class RagAdvisor private constructor(
             .mapNotNull { it.text }
             .joinToString(System.lineSeparator())
 
-        return updateRequest(chatClientRequest, queryToRag, llmContext)
+        return updateRequest(chatClientRequest, originalQuestion, llmContext)
     }
 
     override fun after(
