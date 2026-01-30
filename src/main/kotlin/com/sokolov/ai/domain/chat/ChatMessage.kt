@@ -16,7 +16,7 @@ import java.time.Instant
 
 @Entity
 @Table(name = "chat_message")
-class ChatMessage(
+open class ChatMessage(
     @Id
     @GeneratedValue(GenerationType.IDENTITY)
     var id: Long? = null,
@@ -28,5 +28,20 @@ class ChatMessage(
     var chat: Chat,
     @CreationTimestamp
     var createdAt: Instant? = null
-)
+) {
+    override fun toString(): String {
+        return "ChatMessage(id=$id)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ChatMessage) return false
+        return id != null && id == other.id
+    }
+
+    override fun hashCode(): Int {
+        return id?.hashCode() ?: 0
+    }
+}
+
 
