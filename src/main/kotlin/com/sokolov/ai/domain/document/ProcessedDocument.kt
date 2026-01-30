@@ -9,7 +9,7 @@ import java.time.Instant
 import javax.validation.constraints.Size
 
 @Entity
-class ProcessedDocument(
+open class ProcessedDocument(
     @Id
     @GeneratedValue(GenerationType.IDENTITY)
     var id: Long? = null,
@@ -20,4 +20,18 @@ class ProcessedDocument(
     val chunkCount: Int,
     @CreationTimestamp
     var createdAt: Instant? = null
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ProcessedDocument) return false
+        return id != null && id == other.id
+    }
+
+    override fun hashCode(): Int {
+        return id?.hashCode() ?: 0
+    }
+
+    override fun toString(): String {
+        return "ProcessedDocument(id=$id)"
+    }
+}
